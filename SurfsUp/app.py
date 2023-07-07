@@ -18,8 +18,8 @@ engine= create_engine('sqlite:///Resources/hawaii.sqlite')
 # reflect an existing database into a new model
 Base = automap_base()
 # reflect the tables
-Base.prepare(autoload_with = engine)
-
+#Base.prepare(autoload_with = engine)
+Base.prepare(engine, reflect=True)
 # Save references to each table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
@@ -121,13 +121,12 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def temperature_stats_start(start):
     # Query the minimum, average, and maximum temperatures for dates greater than or equal to the start date
+    
     temperature_stats = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date == start).all()
-
+        filter(Measurement.date >= start).all()
     # Create a dictionary to store the temperature statistics
     stats_dict = {
         "start_date": start,
-        "end_date": session.query(func.max(Measurement.date)).first()[0],
         "TMIN": temperature_stats[0][0],
         "TAVG": temperature_stats[0][1],
         "TMAX": temperature_stats[0][2]
